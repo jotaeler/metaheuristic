@@ -1,15 +1,20 @@
 class File:
-    #Constructor de la clase
+    """
+    Constructor de la clase, el parametro que se pasa
+    es la direccion del fichero que queremos leer
+    """
     def __init__(self, path):
-        self.path = path
-        self.costs = []
-        self.binMatrix = []
-        self.rows = 0
-        self.columns = 0
-        self.num = 0
-        self.totalDatos = []
+        self.path = path        #Path donde se encuentra el fichero a cargar
+        self.costs = []         #Array de costes
+        self.binMatrix = []     #Matriz bidimensional, relacion (ciudades - comisarias)
+        self.rows = 0           #Numero de ciudades
+        self.columns = 0        #Numero de comisarias
+        self.num = 0            #Numero total de datos del fichero
+        self.totalDatos = []    #Array con todos los datos cargados del fichero
 
-    #Metodo para leer los datos del fichero que se le pasa en el constructor
+    """
+    Metodo para leer los datos del fichero que se le pasa en el constructor
+    """
     def leerDatos(self):
         infile = open(self.path, 'r')
         for line in infile:
@@ -41,20 +46,28 @@ class File:
                 ciudad += 1
                 datosCiudad = self.totalDatos[i]
 
-    #Metodo para devolver el numero de filas
+    """
+    Metodo para devolver el numero de filas
+    """
     def getRows(self):
         return self.rows
 
-    #Metodo para devolver el numero de columnas
+    """
+    Metodo para devolver el numero de columnas
+    """
     def getColumns(self):
         return self.columns
 
-    #Muestra los datos que hay guardados en el array "Cost"
+    """
+    Muestra los datos que hay guardados en el array 'Cost'
+    """
     def mostrarCostes(self):
         for i in range(self.costs.__len__()):
             print  self.costs[i]
 
-    #Muestra los datos de la matriz "binMatrix"
+    """
+    Muestra los datos de la matriz "binMatrix"
+    """
     def mostrarMatriz(self):
         print self.binMatrix
 
