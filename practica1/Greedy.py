@@ -12,14 +12,16 @@ class Greedy:
 		self.sectors = sectors		# Int, number of sectors
 		self.subsectors = subsectors	# Int, number of subsectors
 		self.solution = list()			# List with final solution
-		for x in range(0,subsectors):
-			self.solution[x]=0
+		for x in range(subsectors):
+			self.solution.append(0)
 		self.covered = list()	# Meaning each position is covered by X subsec
-		for x in range(0,sectors):
-			self.covered[x]=0
+		for x in range(sectors):
+			self.covered.append(0)
+		self.subsCoversList=self.calcSubsectorsCover() #covers
+		print(self.subsCoversList.__str__())
 		self.ratios = self.getRatios()		# Dict with subsector (key) ratios (value)
 		self.totalCosts= self.calcTotalCosts() # List with total cost of each subsector
-		self.subsCoversList=self.calcSubsectorsCover() #covers
+		
 		self.subsCoversOrdered=self.calcSubsectorsCoverDict() #covers ordered
 	
 	"""
@@ -38,7 +40,7 @@ class Greedy:
 	"""
 	def calcSubsectorsCoverDict(self):
 		ret={}
-		for x in range(0,self.subsectors-1):	# -1 because list start at 0
+		for x in range(0,self.subsectors):	# -1 because list start at 0
 			ret[x]=self.subsCoversList[x]
 		return sorted(ret.items(), key=lambda t: t[1])		# ordered
 	
@@ -47,11 +49,11 @@ class Greedy:
 	"""
 	def calcSubsectorsCover(self):
 		ret=[]
-		for x in range(0,self.subsectors):	# -1 because list start at 0
+		for x in range(self.subsectors):	
 			total=0
-			for y in range(0,self.sectors):	# -1 because list start at 0
+			for y in range(self.sectors):	
 				total=total+self.matrix[y][x]	# moving through sectors first
-			ret[x]=total
+			ret.append(total)
 		return ret
 	
 	"""
@@ -86,8 +88,23 @@ class Greedy:
 	"""
 	Delete unnecessary subsectors a.k.a. hospitals
 	"""
-	def delete(self, coverage):
-		pass
+	def delete(self):
+		subsectors=self.getSelectedCovers()
+		for x in range(len(self.subsectors)):
+			subs=subsectors.popitem(True) #return the last item (biggest cover value)
+			stop=False
+			delete=False
+			y=0
+			while not(stop):
+				if(self.matrix[y][subs[0]]== 1):
+					if(self.covered[y]-1 == 0):
+						stop=True
+				y+=1
+				if(y==self.sectors-1):
+					delete=True
+					stop=True
+			if(delete):
+				self.solution[subs[0]]=0 # Delete item from solution
 	
 	"""
 	Given candidates, return wich one has biggest cover value or random if equal
@@ -140,7 +157,19 @@ class Greedy:
 		return candidates[ret]
 	
 	"""
+	Return if a solution is reached based on covered list
+	"""
+	def solutionReached(self):
+		ret=True
+		for x in range(self.sectors):
+			if(self.solution[x]==0):
+				ret=False
+				break
+		return ret
+	"""
 	Returns the solution
 	"""
 	def start(self):
-		pass
+		while not(self.solutionReached()):
+			self.solution[self.select()]=1
+		self.delete()
