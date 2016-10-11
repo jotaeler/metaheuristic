@@ -63,13 +63,13 @@ class File:
     """
     def mostrarCostes(self):
         for i in range(self.costs.__len__()):
-            print  self.costs[i]
+            print (self.costs[i])
 
     """
     Muestra los datos de la matriz "binMatrix"
     """
     def mostrarMatriz(self):
-        print self.binMatrix
+        print (self.binMatrix)
 
 # fichero = File('../instancias/scp41.txt')
 # fichero.leerDatos()
