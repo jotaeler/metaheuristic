@@ -39,7 +39,7 @@ class File:
         ciudad = 0
         datosCiudad = 0
         for i in range(self.columns + 3,self.num):
-            if datosCiudad < int(self.columns + 2):
+            if datosCiudad < int(self.totalDatos[self.columns + 2]):
                 self.binMatrix[int(ciudad)][int(self.totalDatos[i])-1] = 1
                 datosCiudad += 1
             elif datosCiudad == 0:
