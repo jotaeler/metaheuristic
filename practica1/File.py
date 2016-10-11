@@ -38,8 +38,8 @@ class File:
         #Calculo la matriz bidimensional
         ciudad = 0
         datosCiudad = 0
-        for i in range(1003,self.num):
-            if datosCiudad < int(self.totalDatos[1002]):
+        for i in range(self.columns + 3,self.num):
+            if datosCiudad < int(self.columns + 2):
                 self.binMatrix[int(ciudad)][int(self.totalDatos[i])-1] = 1
                 datosCiudad += 1
             elif datosCiudad == 0:
@@ -63,13 +63,13 @@ class File:
     """
     def mostrarCostes(self):
         for i in range(self.costs.__len__()):
-            print  self.costs[i]
+            print  (self.costs[i])
 
     """
     Muestra los datos de la matriz "binMatrix"
     """
     def mostrarMatriz(self):
-        print self.binMatrix
+        print (self.binMatrix)
 
 # fichero = File('../instancias/scp41.txt')
 # fichero.leerDatos()
