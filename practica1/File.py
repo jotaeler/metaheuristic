@@ -33,7 +33,7 @@ class File:
         contador = self.getColumns() + 2
         for i in range(2, contador):
             # guardo los costes
-            self.costs.append(self.totalDatos[i])
+            self.costs.append(int(self.totalDatos[i]))
 
         #Calculo la matriz bidimensional
         ciudad = 0
