@@ -25,6 +25,7 @@ class Greedy:
         self.subsCoversList = self.calcSubsectorsCover()  # covers
         self.ratios = self.getRatios()        # Dict with subsector (key) ratios (value)
         self.subsCoversOrdered = self.calcSubsectorsCoverDict() #covers ordered
+        self.solCost=0
 
     """
     Return an ordered dictionary where key is subsector and value number of
@@ -162,7 +163,15 @@ class Greedy:
         #we have candidate, remake ratios list and set 0 to covers on given subsector
         self.recalculateMatrix(ret)
         return ret
-
+    """
+    Calc Solution Cost
+    """
+    def solutionCost(self):
+        total=0
+        for x in range(self.subsectors):
+            if(self.solution[x]==1):
+                total += self.costs[x]
+        self.solCost=total
     """
     Returns the solution
     """
@@ -171,3 +180,4 @@ class Greedy:
             nextS=self.select()
             self.solution[nextS] = 1
         self.delete()
+        self.solutionCost()
