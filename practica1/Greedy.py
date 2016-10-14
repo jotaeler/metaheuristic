@@ -23,7 +23,6 @@ class Greedy:
         for x in range(sectors):
             self.covered.append(0)
         self.subsCoversList = self.calcSubsectorsCover()  # covers
-        self.totalCosts = self.calcTotalCosts() # List with total cost of each subsector
         self.ratios = self.getRatios()        # Dict with subsector (key) ratios (value)
         self.subsCoversOrdered = self.calcSubsectorsCoverDict() #covers ordered
 
@@ -50,21 +49,12 @@ class Greedy:
         return ret
 
     """
-    Return list with total costs
-    """
-    def calcTotalCosts(self):
-        ret = []
-        for x in range(self.subsectors):
-            ret.append(self.subsCoversList[x]*self.costs[x])
-        return ret
-
-    """
     Returns subsector ratio
     """
     def getRatios(self):
         ret = OrderedDict()
         for x in range(len(self.costs)):
-            ret[x] = (self.subsCoversList[x]/self.totalCosts[x])
+            ret[x] = (self.subsCoversList[x]/self.costs[x])
         return OrderedDict(sorted(ret.items(), key=lambda t: t[1]))   # ordered
 
     """
