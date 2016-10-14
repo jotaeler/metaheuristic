@@ -44,7 +44,7 @@ class Greedy:
         ret = []
         for x in range(self.subsectors):
             total = 0
-            for y in range(len(self.matrixDict)):
+            for y in self.matrixDict.keys():
                 total = total+self.matrixDict[y][x]    # moving through sectors first
             ret.append(total)
         return ret
@@ -73,23 +73,23 @@ class Greedy:
     """
     def getSelectedCovers(self):
         ret = OrderedDict()
-        for x in range(0, self.subsectors):
+        for x in range(self.subsectors):
             if(self.solution[x] == 1):
                 ret[x] = self.subsCoversOrdered[x]
-        return OrderedDict(sorted(ret.items(), key=lambda t: t[1]))
+        return OrderedDict(sorted(ret.items(), key=lambda t: t[1], reverse=True))
 
     """
     Delete unnecessary subsectors a.k.a. hospitals
     """
     def delete(self):
         subsectors = self.getSelectedCovers()
-        for x in range(self.subsectors):
-            subs = subsectors.popitem(True)  #return the last item (biggest cover value)
+        for x in subsectors.keys():
+            #subs = subsectors.popitem(True)  #return the last item (biggest cover value)
             stop = False
             delete = False
             y = 0
             while not(stop):
-                if(self.matrix[y][subs[0]] == 1):
+                if(self.matrix[y][x] == 1):
                     if(self.covered[y]-1 == 0):
                         stop = True
                 y += 1
@@ -97,7 +97,8 @@ class Greedy:
                     delete = True
                     stop = True
             if(delete):
-                self.solution[subs[0]] = 0  # Delete item from solution
+                self.setSectorsAtUnCovered(x)
+                self.solution[x] = 0  # Delete item from solution
 
     """
 	Given candidates, return wich one has
@@ -106,16 +107,23 @@ class Greedy:
     def biggestCover(self, candidates):
         biggest = candidates[0]
         randomCandidates = []
-        for x in candidates: # x isn't index, x is de subsector'
+        for x in candidates: # x isn't index, x is subsector'
             if self.subsCoversList[x] > self.subsCoversList[biggest]:
                 biggest = x
-            elif self.subsCoversList[x] == self.subsCoversList[biggest] & x != 0:
-                randomCandidates.append(self.subsCoversList[x])
-
+            elif self.subsCoversList[x] == self.subsCoversList[biggest] & biggest != x:
+                randomCandidates.append(x)
         if(len(randomCandidates) > 0):
-            biggest = random.randint(0, len(randomCandidates)-1)
+            randCandidate = random.randint(0, len(randomCandidates)-1)
+            biggest=randomCandidates[randCandidate]
         return biggest
 
+    """
+    Given one subsector set each sectors covered by it as UNcovered
+    """
+    def setSectorsAtUnCovered(self, subsector):
+        for x in range(self.sectors):
+            if(self.matrix[x][subsector] == 1):
+                self.covered[x] -= 1
     """
     Given one subsector set each sectors covered by it as covered
     """
@@ -129,9 +137,12 @@ class Greedy:
     def recalculateMatrix(self, subsector):
         self.setSectorsAtCovered(subsector)
         self.subsCoversList[subsector] = 0
-        for x in range(self.sectors):
-            if(self.matrixDic[x][subsector] == 1):
-                self.matrixDic.pop(x,None)
+        delete=[]
+        for x in self.matrixDict.keys():
+            if(self.matrixDict[x][subsector] == 1):
+                delete.append(x)
+        for x in delete:
+            self.matrixDict.pop(x,None)
         self.subsCoversList = self.calcSubsectorsCover()
         self.ratios = self.getRatios()
 
@@ -142,7 +153,6 @@ class Greedy:
         stop = False
         candidates = []  # candidates to randomize
         fulllist = list(self.ratios.keys())  # all keys
-        #print(str("ratios keys="+str(fulllist)))
         reverseIndex = -2
         index = 0
         candidates.append(fulllist[-1])  # key of biggest ratio
@@ -155,27 +165,19 @@ class Greedy:
             else:
                 stop = True
         if(len(candidates) > 1):
+            #print("candidates="+str(candidates))
             ret = self.biggestCover(candidates)
+        else:
+            ret=candidates[0]
         #we have candidate, remake ratios list and set 0 to covers on given subsector
         self.recalculateMatrix(ret)
-        #print("candidato para esta iteracion="+str(ret)+" ratio para siguente iteracion="+str(self.ratios[ret]))
         return ret
 
-    """
-    Return if a solution is reached based on covered list
-    """
-    def solutionReached(self):
-        ret = True
-        for x in range(self.sectors):
-            if(self.covered[x] == 0):
-                ret = False
-                break
-        return ret
     """
     Returns the solution
     """
     def start(self):
-        while not(len(self.matrixDict)!=0):
-            self.solution[self.select()] = 1
-            print(str(self.solution))
+        while len(self.matrixDict)!=0:
+            nextS=self.select()
+            self.solution[nextS] = 1
         self.delete()
