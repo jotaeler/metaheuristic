@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
 import random
+import copy
 random.seed("1234")
 
 class LocalSearch:
@@ -104,17 +105,17 @@ class LocalSearch:
     """
     Given one subsector set each sectors covered by it as UNcovered
     """
-    def setSectorsAtUnCovered(self, subsector):
+    def setSectorsAtUnCovered(self, subsector, matrix covered):
         for x in range(self.sectors):
-            if(self.matrix[x][subsector] == 1):
-                self.covered[x] -= 1
+            if(matrix[x][subsector] == 1):
+                covered[x] -= 1
     """
     Given one subsector set each sectors covered by it as covered
     """
-    def setSectorsAtCovered(self, subsector):
+    def setSectorsAtCovered(self, subsector, matrix, covered):
         for x in range(self.sectors):
-            if(self.matrix[x][subsector] == 1):
-                self.covered[x] += 1
+            if(matrix[x][subsector] == 1):
+                covered[x] += 1
     """
     Recalculate matrix after select a subsector
     """
@@ -159,14 +160,34 @@ class LocalSearch:
     """
     Calc Solution Cost
     """
-    def solutionCost(self):
+    def solutionCost(self, subse):
         total=0
         for x in range(self.subsectors):
             if(self.solution[x]==1):
                 total += self.costs[x]
         self.solCost=total
     """
+    Generate new neihtbourg
+    """
+    def genNeihtbourg(self,solution):
+       candidatesToRand=[]
+       for x in range(len(solution)):
+           if(solution[x] == 1):
+           	candidates.append(x)
+       rand = random.randint(0,len(solution)-1)
+       neihtbourg = copy.deepcopy(solution)
+       neihtbourg[rand] = 0
+       cost = self.bestSolutionCost
+       cost -= self.costs[rand]
+
+       self.setSectorsAtUnCovered(ret)
+
+    """
     Returns the solution
     """
     def start(self):
-        while self.solutionCost()
+        iterations = 0
+        stop = False
+        while not(stop):
+
+            pass
