@@ -1,5 +1,6 @@
 from File import File
 from Greedy import Greedy
+from LocalSearch import LocalSearch
 
 fichero = File('../instancias/scp41.txt')
 fichero.leerDatos()
@@ -12,5 +13,12 @@ print('El numero de datos que tiene los costes son: ' + str(fichero.costs.__len_
 
 greedy = Greedy(fichero.costs, fichero.binMatrix, fichero.rows, fichero.columns)
 greedy.start()
-print("Covered= "+str(greedy.covered))
-print("Solution= "+str(greedy.solution))
+#print("Covered= "+str(greedy.covered))
+#print("Solution= "+str(greedy.solution))
+print("Solution cost="+str(greedy.solCost))
+
+bl=LocalSearch(fichero.costs, fichero.binMatrix, fichero.rows, fichero.columns, greedy.solution, greedy.solCost, greedy.covered)
+bl.start()
+#print("Covered= "+str(bl.covered))
+#print("Solution= "+str(bl.bestSolution))
+print("Solution cost="+str(bl.bestSolutionCost))
