@@ -102,6 +102,7 @@ class LocalSearch:
                 self.setSectorsAtUnCovered(x)
                 solution[x] = 0  # Delete item from solution
                 cost -= self.costs[x]
+                print("Coste de la solucion despues de borrar el sector"+str(x)+"="+str(cost))
         ret = {'solution':solution, 'cost':cost}
         return ret
 
@@ -115,7 +116,7 @@ class LocalSearch:
         for x in candidates: # x isn't index, x is subsector'
             if self.neihSubsCoversList[x] > self.neihSubsCoversList[biggest]:
                 biggest = x
-            elif self.neihSubsCoversList[x] == self.neihSubsCoversList[biggest] & biggest != x:
+            elif self.neihSubsCoversList[x] == self.neihSubsCoversList[biggest] and biggest != x:
                 randomCandidates.append(x)
         if(len(randomCandidates) > 0):
             randCandidate = random.randint(0, len(randomCandidates)-1)
@@ -162,7 +163,7 @@ class LocalSearch:
         index = 0
         candidates.append(fulllist[-1])  # key of biggest ratio
         ret = 0
-        print("fulllist="+str(fulllist))
+        #print("fulllist="+str(fulllist))
         while not(stop):
             if self.neihRatios[candidates[index]] == self.neihRatios[fulllist[reverseIndex]]:
                 index += 1
@@ -185,8 +186,11 @@ class LocalSearch:
     Generate new neihtbourg
     Return list [solution, cost, Have solution]
     """
-    def genNeihtbourg(self,solution, subsector):
+    def genNeihtbourg(self,arg):
+        solution = arg['solution']
+        subsector = arg['subsector']
         neihtbourg = {}
+        neihtbourg['firstRand'] = arg['firstRand']
         candidatesToRand=[]
         stop = False
         firstRand=False
@@ -194,21 +198,23 @@ class LocalSearch:
             if(solution[x] == 1):
                 candidatesToRand.append(x)
         if subsector == -1:
-            subsector = random.randint(0,len(candidatesToRand)-1)
-            neihtbourg['firstRand'] = subsector
+            rand = random.randint(0,len(candidatesToRand)-1)
+            neihtbourg['firstRand'] = candidatesToRand[rand]
+            subsector = candidatesToRand[rand]
             firstRand=True
         else:
             if subsector+1 == len(candidatesToRand):
                 subsector=0
             else:
                 subsector = subsector+1
-        if subsector == neihtbourg['firstRand'] & firstRand == False:
+        if subsector == arg['firstRand'] and firstRand == False:
             stop = True
             print("E(actual solution) complete")
         else:
             neihtbourg['solution'] = copy.deepcopy(solution)
             #delete rows covered
             delete=[]
+            neihtbourg['solution'][subsector] = 0
             for x in range(self.subsectors):
                 if neihtbourg['solution'][x] == 1:
                     for y in self.neihtbourgMatrix.keys():
@@ -217,15 +223,12 @@ class LocalSearch:
                     for y in delete:
                         self.neihtbourgMatrix.pop(y,None)
             cost = self.bestSolutionCost
-            print("candidates="+str(len(candidatesToRand)))
-            print("subsector="+str(subsector))
-            print("candidate to rand"+str(candidatesToRand[subsector]))
-            cost -= self.costs[candidatesToRand[subsector]]
-            self.neihSubsCoversList[candidatesToRand[subsector]] = 0
+            cost -= self.costs[subsector]
+            self.neihSubsCoversList[subsector] = 0
             self.neihRatios = self.getRatios()
-            self.setSectorsAtUnCovered(candidatesToRand[subsector])
+            self.setSectorsAtUnCovered(subsector)
 
-            while not(stop) & len(self.neihtbourgMatrix) != 0:
+            while not(stop) and len(self.neihtbourgMatrix) != 0:
                 # Select candidates subsector for solution
                 nextS=self.select()
                 if nextS == None :
@@ -233,9 +236,10 @@ class LocalSearch:
                     print("no sector can cover")
                 else:
                     print("next sector for solution"+str(nextS))
-                    solution[nextS] = 1
+                    neihtbourg['solution'][nextS] = 1
+                    #print("matrix dict"+str(self.neihtbourgMatrix)+" STOP="+str(stop)+" otra condicion="+str(len(self.neihtbourgMatrix) != 0))
                     cost += self.costs[nextS]
-            delete = self.delete()
+            delete = self.delete(neihtbourg['solution'],cost)
             neihtbourg['solution'] = delete['solution']
             neihtbourg['subsector'] = subsector
             neihtbourg['cost'] = delete['cost']
@@ -247,6 +251,9 @@ class LocalSearch:
     def updateMemory(self, reinitialize):
         self.neihtbourgMatrix = copy.deepcopy(self.matrixDict)
         self.neihSubsCoversList = copy.deepcopy(self.subsCoversList)
+        for x in range(len(self.bestSolution)):
+            if self.bestSolution[x] == 1:
+                self.neihSubsCoversList[x] = 0
         if reinitialize:
             self.neihCovered = copy.deepcopy(self.covered)
         else:
@@ -264,16 +271,23 @@ class LocalSearch:
         # Solution, cost, sector changed (only from "ones"), Boolean for continue loop or not
         neihtbourg= {'solution':self.bestSolution, 'cost':self.bestSolutionCost,'subsector': -1,'continue':True, 'firstRand':-1}
         while not(stop):
-            neihtbourg= self.genNeihtbourg(neihtbourg['solution'],neihtbourg['subsector'])
+            neihtbourg = self.genNeihtbourg(neihtbourg)
             if neihtbourg['continue']:
+                print("Coste del vecino="+str(neihtbourg["cost"]))
                 if(neihtbourg["cost"]<self.bestSolutionCost):
                     neihtbourg['subsector'] = -1
+                    neihtbourg['firstRand'] = -1
                     self.bestSolution = copy.deepcopy(neihtbourg['solution'])
                     self.bestSolutionCost=neihtbourg["cost"]
-                    self.updateMemory()
+                    neihtbourg['solution'] = self.bestSolution
+                    neihtbourg['cost'] = self.bestSolutionCost
+                    self.updateMemory(False)
+                    print("SOLUCION ="+str(neihtbourg["solution"]))
+                else:
+                    self.updateMemory(True)
                 iterations += 1
+                print("iterations BL="+str(iterations))
                 if iterations == 10000:
                     stop=True
             else:
                 stop = True
-        print("iterations BL="+str(iterations))
