@@ -159,6 +159,7 @@ class LocalSearch:
         stop = False
         candidates = []  # candidates to randomize
         fulllist = list(self.neihRatios.keys())  # all keys
+        #print("Ratios en select "+str(self.neihRatios))
         reverseIndex = -2
         index = 0
         candidates.append(fulllist[-1])  # key of biggest ratio
@@ -174,12 +175,11 @@ class LocalSearch:
         if(len(candidates) > 1):
             print("candidates SELECT="+str(candidates))
             ret = self.biggestCover(candidates)
-            self.recalculateMatrix(ret)
         elif len(candidates) == 1:
             ret=candidates[0]
-            self.recalculateMatrix(ret)
         else:
             ret=None
+            print("SELECT no sector can cover")
         return ret
 
     """
@@ -189,6 +189,7 @@ class LocalSearch:
     def genNeihtbourg(self,arg):
         solution = arg['solution']
         subsector = arg['subsector']
+        rand=0
         neihtbourg = {}
         neihtbourg['firstRand'] = arg['firstRand']
         candidatesToRand=[]
@@ -206,7 +207,9 @@ class LocalSearch:
             if subsector+1 == len(candidatesToRand):
                 subsector=0
             else:
-                subsector = subsector+1
+                print("subsector="+str(subsector)+" len candidates="+str(len(candidatesToRand)))
+                rand = subsector+1
+                subsector = candidatesToRand[subsector+1]
         if subsector == arg['firstRand'] and firstRand == False:
             stop = True
             print("E(actual solution) complete")
@@ -214,6 +217,7 @@ class LocalSearch:
             neihtbourg['solution'] = copy.deepcopy(solution)
             #delete rows covered
             delete=[]
+            print("antes de poner a 0="+str(neihtbourg['solution'][subsector]))
             neihtbourg['solution'][subsector] = 0
             for x in range(self.subsectors):
                 if neihtbourg['solution'][x] == 1:
@@ -227,7 +231,7 @@ class LocalSearch:
             self.neihSubsCoversList[subsector] = 0
             self.neihRatios = self.getRatios()
             self.setSectorsAtUnCovered(subsector)
-
+            print("Coste despues de poner a 0 el sector"+str(cost)+" tamaño de la matriz ="+str(len(self.neihtbourgMatrix)))
             while not(stop) and len(self.neihtbourgMatrix) != 0:
                 # Select candidates subsector for solution
                 nextS=self.select()
@@ -239,9 +243,11 @@ class LocalSearch:
                     neihtbourg['solution'][nextS] = 1
                     #print("matrix dict"+str(self.neihtbourgMatrix)+" STOP="+str(stop)+" otra condicion="+str(len(self.neihtbourgMatrix) != 0))
                     cost += self.costs[nextS]
+                    self.recalculateMatrix(nextS)
+                    print("Coste despues de añadir el sector="+str(cost))
             delete = self.delete(neihtbourg['solution'],cost)
             neihtbourg['solution'] = delete['solution']
-            neihtbourg['subsector'] = subsector
+            neihtbourg['subsector'] = rand
             neihtbourg['cost'] = delete['cost']
         neihtbourg['continue'] = not(stop)
         return neihtbourg
@@ -280,7 +286,7 @@ class LocalSearch:
                     self.bestSolution = copy.deepcopy(neihtbourg['solution'])
                     self.bestSolutionCost=neihtbourg["cost"]
                     neihtbourg['solution'] = self.bestSolution
-                    neihtbourg['cost'] = self.bestSolutionCost
+                    #neihtbourg['cost'] = self.bestSolutionCost
                     self.updateMemory(False)
                     print("SOLUCION ="+str(neihtbourg["solution"]))
                 else:
