@@ -17,7 +17,7 @@ greedy.start()
 #print("Solution= "+str(greedy.solution))
 print("Solution cost="+str(greedy.solCost))
 
-bl=LocalSearch(fichero.costs, fichero.binMatrix, fichero.rows, fichero.columns, greedy.solution, greedy.solCost, greedy.covered, "1234")
+bl=LocalSearch(fichero.costs, fichero.binMatrix, fichero.rows, fichero.columns, greedy.solution, greedy.solCost, greedy.covered, "1234",10000)
 bl.start()
 #print("Covered= "+str(bl.covered))
 #print("Solution= "+str(bl.bestSolution))

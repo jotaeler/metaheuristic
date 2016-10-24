@@ -6,7 +6,7 @@ import copy
 
 class LocalSearch:
 
-    def __init__(self, costs, matrix, sectors, subsectors, initialSolution, initialSolCost, covered, seed):
+    def __init__(self, costs, matrix, sectors, subsectors, initialSolution, initialSolCost, covered, seed, limit):
         random.seed(seed)
         self.costs = costs            # List with cost of each subsector
         self.sectors = sectors        # Int, number of sectors
@@ -26,6 +26,7 @@ class LocalSearch:
         self.neihRatios = copy.deepcopy(self.ratios)
         self.subsCoversOrdered = self.calcSubsectorsCoverDict() #covers ordered
         self.neihSubsCoversOrdered = copy.deepcopy(self.subsCoversOrdered)
+        self.limit=limit
 
     """
     Return an ordered dictionary where key is subsector and value number of
@@ -294,7 +295,7 @@ class LocalSearch:
                     self.updateMemory(True)
                 iterations += 1
                 print("iterations BL="+str(iterations))
-                if iterations == 10000:
+                if iterations == self.limit:
                     stop=True
             else:
                 stop = True
