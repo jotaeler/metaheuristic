@@ -2,11 +2,12 @@
 from collections import OrderedDict
 import random
 import copy
-random.seed("1234")
+
 
 class LocalSearch:
 
-    def __init__(self, costs, matrix, sectors, subsectors, initialSolution, initialSolCost, covered):
+    def __init__(self, costs, matrix, sectors, subsectors, initialSolution, initialSolCost, covered, seed):
+        random.seed(seed)
         self.costs = costs            # List with cost of each subsector
         self.sectors = sectors        # Int, number of sectors
         self.subsectors = subsectors    # Int, number of subsectors

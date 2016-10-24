@@ -1,6 +1,5 @@
 from collections import OrderedDict
 import random
-random.seed("1234")
 
 class Greedy:
 
@@ -8,7 +7,8 @@ class Greedy:
     Sectors and subsectors starts at 0 and goes to X-1
     When calling a function be sure to use number 0 for sector 1
     """
-    def __init__(self, costs, matrix, sectors, subsectors):
+    def __init__(self, costs, matrix, sectors, subsectors,seed):
+        random.seed(seed)
         self.costs = costs            # List with cost of each subsector
         self.sectors = sectors        # Int, number of sectors
         self.subsectors = subsectors    # Int, number of subsectors
