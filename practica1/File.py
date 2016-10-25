@@ -38,13 +38,15 @@ class File:
         #Calculo la matriz bidimensional
         ciudad = 0
         datosCiudad = 0
+        limiteUnos = int(self.totalDatos[self.columns + 2])
         for i in range(self.columns + 3,self.num):
-            if datosCiudad < int(self.totalDatos[self.columns + 2]):
+            if datosCiudad < limiteUnos:
                 self.binMatrix[int(ciudad)][int(self.totalDatos[i])-1] = 1
                 datosCiudad += 1
-            elif datosCiudad == 0:
+            elif datosCiudad == limiteUnos:
                 ciudad += 1
-                datosCiudad = self.totalDatos[i]
+                datosCiudad = 0
+                limiteUnos = int(self.totalDatos[i])
 
     """
     Metodo para devolver el numero de filas
