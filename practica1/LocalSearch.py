@@ -207,7 +207,8 @@ class LocalSearch:
             firstRand=True
         else:
             if subsector+1 == len(candidatesToRand):
-                subsector=0
+                subsector = candidatesToRand[0]
+                rand=0
             else:
                 print("subsector="+str(subsector)+" len candidates="+str(len(candidatesToRand)))
                 rand = subsector+1
