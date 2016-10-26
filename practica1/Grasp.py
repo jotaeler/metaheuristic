@@ -26,7 +26,6 @@ class Grasp:
         for x in range(subsectors):
             self.solution.append(0)
         self.bestSolution = [x*0 for x in range(self.subsectors)]
-        self.solCost = 0
         self.bestSolutionCost = 0
         self.covered = list()    # Meaning each position is covered by X subsec
         for x in range(sectors):
@@ -34,7 +33,6 @@ class Grasp:
         self.subsCoversList = self.calcSubsectorsCover()  # covers
         self.subsCoversOrdered = self.calcSubsectorsCoverDict()  # covers ordered
         self.limit = limit
-
 
     """
     Return an ordered dictionary where key is subsector and value number of
@@ -64,12 +62,8 @@ class Grasp:
     def calcNObjNoCov(self):
         ret = 0
         for x in range(self.subsectors):
-            total = 0
-            for y in self.neihMatrixDict.keys():
-                if self.neihMatrixDict[y][x] == 0:
-                    total += 1
-            if total > ret:
-                ret = total
+            if self.subsCoversList[x] > ret:
+                ret = self.subsCoversList[x]
         return ret
 
     """
@@ -89,7 +83,6 @@ class Grasp:
     def delete(self):
         subsectors = self.getSelectedCovers()
         for x in subsectors.keys():
-            # subs = subsectors.popitem(True)  #return the last item (biggest cover value)
             stop = False
             delete = False
             y = 0
@@ -150,10 +143,12 @@ class Grasp:
         while len(self.neihMatrixDict) != 0:
             rcl=[]
             MaxObjCov = self.calcNObjNoCov()*0.7
+            rand=0
             for x in range(self.subsectors):
-                if self.subsCoversList[x] >= MaxObjCov and self.subsCoversList[x] != 0:
+                if self.subsCoversList[x] >= MaxObjCov:
                     rcl.append(x)
-            rand = random.randint(0, len(rcl)-1)
+            if len(rcl) > 1:
+                rand = random.randint(0, len(rcl)-1)
             candidate = rcl[rand]
             self.solution[candidate] = 1
             self.recalculateMatrix(candidate)
@@ -179,14 +174,13 @@ class Grasp:
         while iterations < self.limit:
             self.solution = self.randomizedGreedy()
             cost = self.solutionCost(self.solution)
-            print("Coste de la solucion random="+str(cost))
+            if iterations == 0:
+                self.bestSolution = self.solution
+                self.bestSolutionCost = cost
             bl = LocalSearch(self.costs, self.matrix, self.sectors, self.subsectors, self.solution, cost, self.covered, "1234", 400)
             bl.start()
             if bl.bestSolutionCost < self.bestSolutionCost:
-                print("Mejor solucion encontrada con coste ="+str(bl.bestSolutionCost))
                 self.bestSolution = bl.bestSolution
                 self.bestSolutionCost = bl.bestSolutionCost
             iterations += (bl.iterations + 1)
             self.updateMemory()
-            print("Iterations ="+str(iterations))
-        print("Finalizado GRASP con coste="+str(self.bestSolutionCost))

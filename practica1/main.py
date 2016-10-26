@@ -20,4 +20,4 @@ print("Solution cost GREEDY="+str(greedy.solCost))
 grasp = Grasp(fichero.costs, fichero.binMatrix, fichero.rows, fichero.columns,"1234", 10000)
 grasp.start()
 
-print("Solution cost GREEDY="+str(greedy.solCost))
+print("Solution cost GRASAP="+str(grasp.bestSolutionCost))
