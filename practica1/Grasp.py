@@ -31,7 +31,6 @@ class Grasp:
         self.covered = list()    # Meaning each position is covered by X subsec
         for x in range(sectors):
             self.covered.append(0)
-        self.subsNoCoversList = self.calcSubsectorsNoCover()  # covers
         self.subsCoversList = self.calcSubsectorsCover()  # covers
         self.subsCoversOrdered = self.calcSubsectorsCoverDict()  # covers ordered
         self.limit = limit
@@ -56,18 +55,6 @@ class Grasp:
             total = 0
             for y in self.matrixDict.keys():
                 total = total + self.matrixDict[y][x]  # moving through sectors first
-            ret.append(total)
-        return ret
-    """
-    Return a list with number of sectors covered by subsectors (list position)
-    """
-    def calcSubsectorsNoCover(self):
-        ret = []
-        for x in range(self.subsectors):
-            total = 0
-            for y in self.neihMatrixDict.keys():
-                if self.neihMatrixDict[y][x] == 0:
-                    total += 1
             ret.append(total)
         return ret
 
@@ -162,9 +149,9 @@ class Grasp:
     def randomizedGreedy(self):
         while len(self.neihMatrixDict) != 0:
             rcl=[]
-            NObjNoCov = self.calcNObjNoCov()*0.7
+            MaxObjCov = self.calcNObjNoCov()*0.7
             for x in range(self.subsectors):
-                if self.subsNoCoversList[x] >= NObjNoCov and self.subsCoversList[x] != 0:
+                if self.subsCoversList[x] >= MaxObjCov and self.subsCoversList[x] != 0:
                     rcl.append(x)
             rand = random.randint(0, len(rcl)-1)
             candidate = rcl[rand]
@@ -178,7 +165,6 @@ class Grasp:
     """
     def updateMemory(self):
         self.neihMatrixDict = copy.deepcopy(self.matrixDict)
-        self.subsNoCoversList = self.calcSubsectorsNoCover()  # covers
         self.subsCoversList = self.calcSubsectorsCover()  # covers
         for x in range(self.subsectors):
             self.solution[x] = 0
