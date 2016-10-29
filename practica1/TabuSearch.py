@@ -302,6 +302,9 @@ class TabuSearch:
             if posAnt == 0:
                 break
 
+    """
+    Metodo que devuelve el mejor vecino con su coste, de los 50 vecinos generados de una solucion.
+    """
     def generarVecinos(self, numVecinos):
         mejorCosteVecino = 99999
         vecinoOK = list()
