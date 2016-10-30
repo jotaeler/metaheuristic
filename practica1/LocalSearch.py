@@ -204,7 +204,7 @@ class LocalSearch:
             subsector = candidatesToRand[rand]
             firstRand=True
         else:
-            if subsector+1 == len(candidatesToRand):
+            if subsector+1 >= len(candidatesToRand):
                 subsector = candidatesToRand[0]
                 rand=0
             else:
@@ -278,7 +278,6 @@ class LocalSearch:
                     self.bestSolution = copy.deepcopy(neihtbourg['solution'])
                     self.bestSolutionCost=neihtbourg["cost"]
                     neihtbourg['solution'] = self.bestSolution
-                    #neihtbourg['cost'] = self.bestSolutionCost
                     self.updateMemory(False)
                 else:
                     self.updateMemory(True)
