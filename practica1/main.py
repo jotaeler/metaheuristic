@@ -3,6 +3,7 @@ from Greedy import Greedy
 from LocalSearch import LocalSearch
 from Grasp import Grasp
 import time
+from TabuSearch import TabuSearch
 
 
 fichero = File('../instancias/scpnrf1.txt')
@@ -124,3 +125,4 @@ grasp.start()
 end = time.clock() -t0
 print("Ejecucion 5 = "+str(end))
 print("Solution cost GRASP="+str(grasp.bestSolutionCost))
+
