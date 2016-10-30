@@ -14,6 +14,7 @@ class Grasp:
 
     def __init__(self, costs, matrix, sectors, subsectors, seed, limit):
         random.seed(seed)
+        self.seed = seed
         self.costs = costs            # List with cost of each subsector
         self.sectors = sectors        # Int, number of sectors
         self.subsectors = subsectors    # Int, number of subsectors
@@ -177,10 +178,11 @@ class Grasp:
             if iterations == 0:
                 self.bestSolution = self.solution
                 self.bestSolutionCost = cost
-            bl = LocalSearch(self.costs, self.matrix, self.sectors, self.subsectors, self.solution, cost, self.covered, "1234", 400)
+            bl = LocalSearch(self.costs, self.matrix, self.sectors, self.subsectors, self.solution, cost, self.covered, self.seed, 400)
             bl.start()
             if bl.bestSolutionCost < self.bestSolutionCost:
                 self.bestSolution = bl.bestSolution
                 self.bestSolutionCost = bl.bestSolutionCost
             iterations += (bl.iterations + 1)
+            print("iteraciones="+str(iterations))
             self.updateMemory()
