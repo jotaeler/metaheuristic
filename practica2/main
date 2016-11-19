@@ -1,0 +1,45 @@
+import random
+from File import File
+from Bio import GA
+from Bio.Seq import Seq
+
+random.seed(1234)
+
+"""
+Recalculate matrix after select a subsector
+"""
+def recalculateMatrix(self, subsector):
+    self.setSectorsAtCovered(subsector)
+    self.subsCoversList[subsector] = 0
+    delete = []
+    for x in self.neihMatrixDict.keys():
+        if(self.neihMatrixDict[x][subsector] == 1):
+            delete.append(x)
+    for x in delete:
+        self.neihMatrixDict.pop(x,None)
+
+"""
+Randomize Greedy through RCL list
+"""
+def randomizedGreedy(self):
+    while len(self.neihMatrixDict) != 0:
+        rcl=[]
+        MaxObjCov = self.calcNObjNoCov()*0.7
+        rand=0
+        for x in range(self.subsectors):
+            if self.subsCoversList[x] >= MaxObjCov:
+                rcl.append(x)
+        if len(rcl) > 1:
+            rand = random.randint(0, len(rcl)-1)
+        candidate = rcl[rand]
+        self.solution[candidate] = 1
+        self.recalculateMatrix(candidate)
+    self.delete()
+    return self.solution
+
+fichero = File('../instancias/scp41.txt')
+fichero.leerDatos()
+
+my_seq = Seq("AGTACACTGGT")
+
+print(my_seq[2])
