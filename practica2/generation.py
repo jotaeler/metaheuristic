@@ -3,6 +3,9 @@ import copy
 from collections import OrderedDict
 from Bio.GA import Organism
 from Bio.Seq import MutableSeq
+from Bio.GA.Selection import Tournament
+from .AlphabetSCP import AlphabetSCP
+from Bio.GA.Mutation import Simple
 
 class Generation:
 
@@ -16,6 +19,11 @@ class Generation:
         self.subsCoversList = []  # covers
         self.subsCoversOrdered = {}  # covers ordered
         self.covered = list()  # Meaning each position is covered by X subsec
+
+        population = Organism.function_population(self.randomizedGreedy, 50, self.getCost)
+        mutator = Simple.ConversionMutation(0.01)
+
+
 
 
     def calcSubsectorsCover(self):
@@ -123,7 +131,7 @@ class Generation:
         for x in range(self.sectors):
             self.covered.append(0)
         solution = "0"*self.subsectors
-        seq = MutableSeq(solution)
+        seq = MutableSeq(solution,AlphabetSCP())
         matrixAux = copy.deepcopy(self.matrixDict)
         while len(matrixAux) != 0:
             rcl = []
@@ -139,3 +147,13 @@ class Generation:
             self.recalculateMatrix(candidate)
         self.delete(seq)
         return seq
+
+    def getCost(self, genome):
+        """
+        Calc Genome Cost genome object is MutableSeq
+        """
+        total = 0
+        for x in range(self.subsectors):
+            if genome[x] == "1":
+                total += self.costs[x]
+        return total
