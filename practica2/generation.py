@@ -6,6 +6,9 @@ from Bio.Seq import MutableSeq
 from Bio.GA.Selection import Tournament
 from .AlphabetSCP import AlphabetSCP
 from Bio.GA.Mutation import Simple
+from Bio.GA.Crossover import Uniform
+from Bio.GA.Evolver import GenerationEvolver
+from .repair import Repair
 
 class Generation:
 
@@ -19,11 +22,17 @@ class Generation:
         self.subsCoversList = []  # covers
         self.subsCoversOrdered = {}  # covers ordered
         self.covered = list()  # Meaning each position is covered by X subsec
+        self.iterations = 0
 
-        population = Organism.function_population(self.randomizedGreedy, 50, self.getCost)
-        mutator = Simple.ConversionMutation(0.01)
-
-
+    def stop(self):
+        """
+        Stopping criteria for evolution process
+        :return:
+        """
+        if self.iterations < 20000:
+            return True
+        else:
+            return False
 
 
     def calcSubsectorsCover(self):
@@ -153,7 +162,23 @@ class Generation:
         Calc Genome Cost genome object is MutableSeq
         """
         total = 0
+        self.iterations += 1
         for x in range(self.subsectors):
             if genome[x] == "1":
                 total += self.costs[x]
         return total
+
+    def runGenerationEvolverHUX(self):
+        """
+        Run the algorithm with Uniform crossover
+        :return:
+        """
+        population = Organism.function_population(self.randomizedGreedy, 50, self.getCost)
+        mutator = Simple.ConversionMutation(0.01)
+        crossover = Uniform.UniformCrossover(1, 0.7)
+        repairer = Repair(self.matrix, self.sectors, self.subsectors, self.costs)
+
+        selector = Tournament.TournamentSelection(mutator, crossover, repairer, 2)
+        evolver = GenerationEvolver(population, selector)
+        final_population = evolver.evolve(self.stop)
+        return final_population
