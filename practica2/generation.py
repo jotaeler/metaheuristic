@@ -3,16 +3,18 @@ import copy
 from collections import OrderedDict
 from Bio.GA import Organism
 from Bio.Seq import MutableSeq
-from Bio.GA.Selection import Tournament
-from .AlphabetSCP import AlphabetSCP
+#from Bio.GA.Selection import Tournament
+from Tournament import TournamentSelection
+from AlphabetSCP import AlphabetSCP
 from Bio.GA.Mutation import Simple
 from Bio.GA.Crossover import Uniform
 from Bio.GA.Evolver import GenerationEvolver
-from .repair import Repair
+from repair import Repair
 
-class Generation:
 
-    def __init__(self,costs, matrix, sectors, subsectors,):
+class Generation(object):
+
+    def __init__(self, costs, matrix, sectors, subsectors):
         random.seed("1234")
         self.costs = costs  # List with cost of each subsector
         self.sectors = sectors  # Int, number of sectors
@@ -24,15 +26,16 @@ class Generation:
         self.covered = list()  # Meaning each position is covered by X subsec
         self.iterations = 0
 
-    def stop(self):
+    def stop(self, population):
         """
         Stopping criteria for evolution process
         :return:
         """
+        print("Stopping criteria function iterations = "+str(self.iterations))
         if self.iterations < 20000:
-            return True
-        else:
             return False
+        else:
+            return True
 
 
     def calcSubsectorsCover(self):
@@ -77,7 +80,7 @@ class Generation:
         """
         Delete unnecessary subsectors a.k.a. hospitals
         """
-        subsectors = self.getSelectedCovers()
+        subsectors = self.getSelectedCovers(seq)
         for x in subsectors.keys():
             stop = False
             delete = False
@@ -132,6 +135,7 @@ class Generation:
         """
         Generate Genome through Randomize Greedy through RCL list
         """
+        print("randomizedGreedy")
         for x in range(self.sectors):
             self.matrixDict[x] = self.matrix[x]
         self.subsCoversList = self.calcSubsectorsCover()  # covers
@@ -141,8 +145,7 @@ class Generation:
             self.covered.append(0)
         solution = "0"*self.subsectors
         seq = MutableSeq(solution,AlphabetSCP())
-        matrixAux = copy.deepcopy(self.matrixDict)
-        while len(matrixAux) != 0:
+        while len(self.matrixDict) != 0:
             rcl = []
             MaxObjCov = self.calcNObjNoCov() * 0.7
             rand = 0
@@ -161,6 +164,7 @@ class Generation:
         """
         Calc Genome Cost genome object is MutableSeq
         """
+        print("Call to fitness function")
         total = 0
         self.iterations += 1
         for x in range(self.subsectors):
@@ -178,7 +182,7 @@ class Generation:
         crossover = Uniform.UniformCrossover(1, 0.7)
         repairer = Repair(self.matrix, self.sectors, self.subsectors, self.costs)
 
-        selector = Tournament.TournamentSelection(mutator, crossover, repairer, 2)
+        selector = TournamentSelection(mutator, crossover, repairer, 2)
         evolver = GenerationEvolver(population, selector)
         final_population = evolver.evolve(self.stop)
         return final_population

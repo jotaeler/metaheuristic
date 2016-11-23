@@ -9,13 +9,13 @@ class Repair(object):
         random.seed("1234")
         self.matrix = matrix
         self.matrixDict = {}
+        self.sectors = nSectors
         for x in range(self.sectors):
             self.matrixDict[x] = self.matrix[x]
-        self.sectors = nSectors
         self.subsectors = nSubsectors
         self.costs = costs
         self.subsCoversList = self.calcSubsectorsCover(self.matrixDict)  # covers
-        self.subsCoversOrdered = self.calcSubsectorsCoverDict(self.subsCoversOrdered)  # covers ordered
+        self.subsCoversOrdered = self.calcSubsectorsCoverDict(self.subsCoversList)  # covers ordered
 
     def calcSubsectorsCover(self, matrixDict):
         """
@@ -99,7 +99,7 @@ class Repair(object):
                 delete.append(x)
         for x in delete:
             matrixDict.pop(x,None)
-        self.subsCoversList = self.calcSubsectorsCover()
+        self.subsCoversList = self.calcSubsectorsCover(matrixDict)
         self.ratios = self.getRatios()
 
     def biggestCover(self, candidates):
@@ -134,10 +134,10 @@ class Repair(object):
             if self.ratios[candidates[index]] == self.ratios[fulllist[reverseIndex]]:
                 index += 1
                 candidates.append(fulllist[reverseIndex])
-                reverseIndex-=1
+                reverseIndex -= 1
             else:
                 stop = True
-        if(len(candidates) > 1):
+        if len(candidates) > 1:
             ret = self.biggestCover(candidates)
         elif len(candidates) == 1:
             ret = candidates[0]
@@ -147,21 +147,30 @@ class Repair(object):
         new_organism = organism.copy()
         matrix_aux = copy.deepcopy(self.matrixDict)
         covered = list()  # Meaning each position is covered by X subsec
+        self.subsCoversList = self.calcSubsectorsCover(matrix_aux)
         self.ratios = self.getRatios()
-        self.subsCoversList = self.calcSubsectorsCover()
         for x in range(self.sectors):
-            self.covered.append(0)
+            covered.append(0)
+        # for x in range(self.subsectors):
+        #     if new_organism.genome[x] == "1":
+        #         self.setSectorsAtCovered(x, covered)
+        #         matrix_aux.pop(x, None)
+        delete = []
         for x in range(self.subsectors):
             if new_organism.genome[x] == "1":
-                self.setSectorsAtCovered(x, covered)
-                matrix_aux.pop(x, None)
+                for y in matrix_aux.keys():
+                    if matrix_aux[y][x] == 1:
+                        delete.append(y)
+                for y in delete:
+                    matrix_aux.pop(y, None)
         if len(matrix_aux) > 0:
             # Sectors uncovered, greedy
-            while len(self.neihtbourgMatrix) != 0:
+            while len(matrix_aux) != 0:
                 # Select candidates subsector for solution
                 nextS = self.select()
                 new_organism.genome[nextS] = "1"
                 self.recalculateMatrix(nextS, matrix_aux, covered)
+            self.delete(new_organism, covered)
         else:
             # All sectors covered, return new_organism
             self.delete(new_organism, covered)

@@ -1,4 +1,5 @@
-from Bio import Alphabet
+from Bio.Alphabet import Alphabet
+
 
 class AlphabetSCP(Alphabet):
 
