@@ -1,4 +1,5 @@
 from generation import Generation
+from Stationary import Stationary
 from File import File
 import time
 
@@ -15,6 +16,4 @@ for organism in poblacion_evolucionada:
 end = time.clock() -t0
 print("Ejecucion  = "+str(end))
 print(str(best.fitness))
-
-
 

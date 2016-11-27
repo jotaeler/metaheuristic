@@ -11,11 +11,13 @@ from Bio.GA.Crossover import Uniform
 from Bio.GA.Evolver import GenerationEvolver
 from repair import Repair
 
+from CruceBeasley import CruceBeasley
+
 
 class Generation(object):
 
     def __init__(self, costs, matrix, sectors, subsectors):
-        random.seed("1234")
+        random.seed("77373014")
         self.costs = costs  # List with cost of each subsector
         self.sectors = sectors  # Int, number of sectors
         self.subsectors = subsectors  # Int, number of subsectors
@@ -179,7 +181,22 @@ class Generation(object):
         """
         population = Organism.function_population(self.randomizedGreedy, 50, self.getCost)
         mutator = Simple.ConversionMutation(0.01)
-        crossover = Uniform.UniformCrossover(1, 0.7)
+        crossover = Uniform.UniformCrossover(1, 1)
+        repairer = Repair(self.matrix, self.sectors, self.subsectors, self.costs)
+
+        selector = TournamentSelection(mutator, crossover, repairer, 2)
+        evolver = GenerationEvolver(population, selector)
+        final_population = evolver.evolve(self.stop)
+        return final_population
+
+    def runGenerationEvolverFUSION(self):
+        """
+        Run the algorithm with Fusion crossover
+        :return:
+        """
+        population = Organism.function_population(self.randomizedGreedy, 50, self.getCost)
+        mutator = Simple.ConversionMutation(0.01)
+        crossover = CruceBeasley(1, 0.7)
         repairer = Repair(self.matrix, self.sectors, self.subsectors, self.costs)
 
         selector = TournamentSelection(mutator, crossover, repairer, 2)
