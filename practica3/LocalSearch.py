@@ -6,7 +6,7 @@ import copy
 
 class LocalSearch:
 
-    def __init__(self, costs, matrix, sectors, subsectors, initialSolution, initialSolCost, covered, seed, limit):
+    def __init__(self, costs, matrix, sectors, subsectors, initialGenome, initialSolCost, seed, limit):
         random.seed(seed)
         self.costs = costs            # List with cost of each subsector
         self.sectors = sectors        # Int, number of sectors
@@ -16,9 +16,14 @@ class LocalSearch:
         for x in range(self.sectors):
             self.matrixDict[x]=self.matrix[x]
         self.neihtbourgMatrix = copy.deepcopy(self.matrixDict)
-        self.bestSolution = initialSolution       # List with final solution
+        self.bestSolution = initialGenome       # List with final solution
         self.bestSolutionCost = initialSolCost
-        self.covered = covered    # Meaning each position is covered by X subsec
+        self.covered = list()    # Meaning each position is covered by X subsec
+        for x in range(sectors):
+            count=0
+            for y in range(subsectors):
+                count += matrix[x][y]
+            self.covered.append(count)
         self.neihCovered = copy.deepcopy(self.covered)
         self.subsCoversList = self.calcSubsectorsCover()  # covers
         self.neihSubsCoversList = copy.deepcopy(self.subsCoversList)
@@ -79,7 +84,7 @@ class LocalSearch:
     def getSelectedCovers(self,solution):
         ret = OrderedDict()
         for x in range(self.subsectors):
-            if(solution[x] == 1):
+            if(solution[x] == "1"):
                 ret[x] = self.neihSubsCoversOrdered[x]
         return OrderedDict(sorted(ret.items(), key=lambda t: t[1], reverse=True))
 
@@ -103,7 +108,7 @@ class LocalSearch:
                     stop = True
             if(delete):
                 self.setSectorsAtUnCovered(x)
-                solution[x] = 0  # Delete item from solution
+                solution[x] = "0"  # Delete item from solution
                 cost -= self.costs[x]
         ret = {'solution':solution, 'cost':cost}
         return ret
@@ -196,7 +201,7 @@ class LocalSearch:
         stop = False
         firstRand=False
         for x in range(len(solution)):
-            if(solution[x] == 1):
+            if(solution[x] == "1"):
                 candidatesToRand.append(x)
         if subsector == -1:
             rand = random.randint(0,len(candidatesToRand)-1)
@@ -216,9 +221,9 @@ class LocalSearch:
             neihtbourg['solution'] = copy.deepcopy(solution)
             #delete rows covered
             delete=[]
-            neihtbourg['solution'][subsector] = 0
+            neihtbourg['solution'][subsector] = "0"
             for x in range(self.subsectors):
-                if neihtbourg['solution'][x] == 1:
+                if neihtbourg['solution'][x] == "1":
                     for y in self.neihtbourgMatrix.keys():
                         if(self.neihtbourgMatrix[y][x] == 1):
                             delete.append(y)
@@ -235,7 +240,7 @@ class LocalSearch:
                 if nextS == None :
                     stop=True
                 else:
-                    neihtbourg['solution'][nextS] = 1
+                    neihtbourg['solution'][nextS] = "1"
                     cost += self.costs[nextS]
                     self.recalculateMatrix(nextS)
             delete = self.delete(neihtbourg['solution'],cost)
@@ -251,7 +256,7 @@ class LocalSearch:
         self.neihtbourgMatrix = copy.deepcopy(self.matrixDict)
         self.neihSubsCoversList = copy.deepcopy(self.subsCoversList)
         for x in range(len(self.bestSolution)):
-            if self.bestSolution[x] == 1:
+            if self.bestSolution[x] == "1":
                 self.neihSubsCoversList[x] = 0
         if reinitialize:
             self.neihCovered = copy.deepcopy(self.covered)
@@ -263,7 +268,7 @@ class LocalSearch:
     """
     def start(self):
         for x in range(len(self.bestSolution)):
-            if self.bestSolution[x] == 1:
+            if self.bestSolution[x] == "1":
                 self.neihSubsCoversList[x] = 0
         stop = False
         # Solution, cost, sector changed (only from "ones"), Boolean for continue loop or not
