@@ -178,30 +178,16 @@ class Generation(object):
 
     def runGenerationEvolverHUX(self):
         """
-        Run the algorithm with Uniform crossover
-        :return:
-        """
-        population = Organism.function_population(self.randomizedGreedy, 50, self.getCost)
-        mutator = Simple.ConversionMutation(0.01)
-        crossover = Uniform.UniformCrossover(1, 1)
-        repairer = Repair(self.matrix, self.sectors, self.subsectors, self.costs)
-
-        selector = TournamentSelection(mutator, crossover, repairer, 2)
-        evolver = GenerationEvolver(population, selector)
-        final_population = evolver.evolve(self.stop)
-        return final_population
-
-    def runGenerationEvolverFUSION(self):
-        """
         Run the algorithm with Fusion crossover
         :return:
         """
-        population = Organism.function_population(self.randomizedGreedy, 50, self.getCost)
+        tam = 20
+        population = Organism.function_population(self.randomizedGreedy, tam, self.getCost)
         mutator = Simple.ConversionMutation(0.01)
         crossover = CruceBeasley(1, 0.7)
         repairer = Repair(self.matrix, self.sectors, self.subsectors, self.costs)
 
         selector = TournamentSelection(mutator, crossover, repairer, 2)
-        evolver = GenerationEvolver(population, selector, self.generation, self.mode, self.costs, self.matrix, self.sectors, self.subsectors)
-        final_population = evolver.evolve(self.stop)
+        evolver = GenerationEvolver(population, selector)
+        final_population = evolver.evolve(self.stop, self.generation, self.mode, self.costs, self.matrix, self.sectors, self.subsectors, tam, self.iterations)
         return final_population
