@@ -11,6 +11,7 @@ for taking care of the transition from one generation to the next.
 # standard modules
 from __future__ import print_function
 from LocalSearch import LocalSearch
+import random
 
 import sys
 
@@ -36,7 +37,7 @@ class GenerationEvolver(object):
         self._population = starting_population
         self._selector = selector
 
-    def evolve(self, stopping_criteria, generations, mode, costs, matrix, sectors, subsectors):
+    def evolve(self, stopping_criteria, generations, mode, costs, matrix, sectors, subsectors, tam, iterations):
         """Evolve the population through multiple generations.
 
         Arguments:
@@ -49,17 +50,37 @@ class GenerationEvolver(object):
 
         o The final evolved population.
         """
+        # GENERATIONS SIRVE PARA SABER CUANDO HAY QUE REINICIALIZAR
+
         generation = 0
         while not(stopping_criteria(self._population)):
             try:
                 if generation == 10:
                     if mode == 1:
                         for organism in self._population:
-                            organism.recalculate_fitness()
+                            bl = LocalSearch(costs, matrix, sectors, subsectors, organism.genome, organism.fitness, "1234", 200)
+                            bl.start()
+                            organism.genome = bl.bestSolution
+                            iterations += bl.iterations
                     elif mode == 2:
-                        pass
+                        for organism in self._population:
+                            # probabilidad 0.1
+                            if (random.randint(0, 9)) > 8:
+                                bl = LocalSearch(costs, matrix, sectors, subsectors, organism.genome, organism.fitness, "1234", 200)
+                                bl.start()
+                                organism.genome = bl.bestSolution
+                                iterations += bl.iterations
                     elif mode == 3:
-                        pass
+                        best = []
+                        for organism in self._population:
+                            if organism.fitness < best.fitness:
+                                best = organism
+                        for x in range(tam*0.1):
+                            bl = LocalSearch(costs, matrix, sectors, subsectors, self._population[x], organism.fitness, "1234", 200)
+                            bl.start()
+                            organism.genome = bl.bestSolution
+                            iterations += bl.iterations
+                    generation = 0
                 # perform selection, mutation, crossover on the population
                 self._population = self._selector.select(self._population)
 
