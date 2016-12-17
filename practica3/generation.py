@@ -189,5 +189,27 @@ class Generation(object):
 
         selector = TournamentSelection(mutator, crossover, repairer, 2)
         evolver = GenerationEvolver(population, selector)
-        final_population = evolver.evolve(self.stop, self.generation, self.mode, self.costs, self.matrix, self.sectors, self.subsectors, tam, self.iterations)
+        bestSolution = population[0]
+        while not(self.stop()):
+            final_population = evolver.evolve(self.stop, self.generation, self.mode, self.costs, self.matrix, self.sectors, self.subsectors, tam, self.iterations)
+            if not(self.stop()):
+                # comprobar reinicializacion
+                reinitialize = True
+                # primero comprobamos la de mejor solucion encontrada
+                for organism in population:
+                    if organism.fitness < bestSolution.fitness:
+                        bestSolution = organism
+                        reinitialize = False
+                # ahora comprobar la de converger a la misma solucino
+                if not(reinitialize):
+                    aux = copy.deepcopy(population)
+                    while not(reinitialize) and len(aux) > 0:
+                        org = aux.pop()
+                        count = aux.count(org)
+                        if count > tam*0.8:
+                            reinitialize = True
+            if reinitialize:
+                population = Organism.function_population(self.randomizedGreedy, tam-1, self.getCost)
+                population.append(bestSolution)
+                evolver = GenerationEvolver(population, selector)
         return final_population

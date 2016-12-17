@@ -52,8 +52,9 @@ class GenerationEvolver(object):
         o The final evolved population.
         """
         # GENERATIONS SIRVE PARA SABER CUANDO HAY QUE REINICIALIZAR
-        generation = iterations
-        while not(stopping_criteria(self._population)):
+        generation = 0
+        stop = False
+        while not(stopping_criteria(self._population)) and not(stop):
             mejorSolucion = self._population[1]
             try:
                 if generation == 10:
@@ -95,7 +96,9 @@ class GenerationEvolver(object):
                 # update the fitness of the new popultation
                 for organism in self._population:
                     organism.recalculate_fitness()
-
+                generation += 1
+                if generation == 20:
+                    stop = True
             # dump out all of the organisms for debugging if the
             # evolution process is broken with a Control-C
             except KeyboardInterrupt:
@@ -104,5 +107,4 @@ class GenerationEvolver(object):
                 for org in self._population:
                     print(org)
                 sys.exit()
-            generation += 1
         return self._population
