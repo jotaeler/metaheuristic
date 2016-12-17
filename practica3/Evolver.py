@@ -12,6 +12,7 @@ for taking care of the transition from one generation to the next.
 from __future__ import print_function
 from LocalSearch import LocalSearch
 import random
+import copy
 
 import sys
 
@@ -51,12 +52,13 @@ class GenerationEvolver(object):
         o The final evolved population.
         """
         # GENERATIONS SIRVE PARA SABER CUANDO HAY QUE REINICIALIZAR
-
-        generation = 0
+        generation = iterations
         while not(stopping_criteria(self._population)):
+            mejorSolucion = self._population[1]
             try:
                 if generation == 10:
                     if mode == 1:
+                        print("DENTRO DEL MODO 1")
                         for organism in self._population:
                             bl = LocalSearch(costs, matrix, sectors, subsectors, organism.genome, organism.fitness, "1234", 200)
                             bl.start()
@@ -72,13 +74,19 @@ class GenerationEvolver(object):
                                 iterations += bl.iterations
                     elif mode == 3:
                         best = []
-                        for organism in self._population:
-                            if organism.fitness < best.fitness:
-                                best = organism
+                        i = 0
+                        populationSort = copy.deepcopy(self._population)
+                        populationSort.sort(key = lambda organism: organism.fitness)
+                        for organismo in populationSort:
+                            if i < tam:
+                                best.append(organismo)
+                                i += 1
+                            else:
+                                break
                         for x in range(tam*0.1):
-                            bl = LocalSearch(costs, matrix, sectors, subsectors, self._population[x], organism.fitness, "1234", 200)
+                            bl = LocalSearch(costs, matrix, sectors, subsectors, best[x].genome, best[x].fitness, "1234", 200)
                             bl.start()
-                            organism.genome = bl.bestSolution
+                            best[x].genome = bl.bestSolution
                             iterations += bl.iterations
                     generation = 0
                 # perform selection, mutation, crossover on the population
@@ -96,5 +104,5 @@ class GenerationEvolver(object):
                 for org in self._population:
                     print(org)
                 sys.exit()
-
+            generation += 1
         return self._population

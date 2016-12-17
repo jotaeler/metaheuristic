@@ -6,7 +6,7 @@ import time
 fichero = File('../instancias/scpa1.txt')
 fichero.leerDatos()
 
-generacional = Generation(fichero.costs, fichero.binMatrix, fichero.rows, fichero.columns)
+generacional = Generation(fichero.costs, fichero.binMatrix, fichero.rows, fichero.columns, 0, 1)
 t0 = time.clock()
 poblacion_evolucionada = generacional.runGenerationEvolverHUX()
 best = poblacion_evolucionada[0]

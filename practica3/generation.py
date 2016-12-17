@@ -178,13 +178,13 @@ class Generation(object):
 
     def runGenerationEvolverHUX(self):
         """
-        Run the algorithm with Fusion crossover
+        Run the algorithm with Uniform crossover
         :return:
         """
         tam = 20
         population = Organism.function_population(self.randomizedGreedy, tam, self.getCost)
         mutator = Simple.ConversionMutation(0.01)
-        crossover = CruceBeasley(1, 0.7)
+        crossover = Uniform.UniformCrossover(1, 0.7)
         repairer = Repair(self.matrix, self.sectors, self.subsectors, self.costs)
 
         selector = TournamentSelection(mutator, crossover, repairer, 2)
